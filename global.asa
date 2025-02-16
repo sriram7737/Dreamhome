@@ -1,0 +1,44 @@
+<SCRIPT LANGUAGE="VBScript" RUNAT="Server">
+
+'**************************************************
+'*** GetConnectionString function
+'**************************************************
+'*** Written 9/5/2004
+'*** Author: A.McMonnies
+'*** Revision 2.1
+'*** Purpose - Function returns a string specifying
+'*** a full connection string for opening an Access
+'*** (JET 4.0) database in the same folder as the
+'*** page the function is run from.
+'==================================================
+'*** Input parameter - db As String - name of MDB 
+'*** database file.
+'*** Result - Connection-String As String
+'***************************************************
+Function GetConnectionString(db)
+	GetConnectionString = "PROVIDER=Microsoft.Jet.OLEDB.4.0;" & _
+                "Data Source=" & Server.MapPath(db) & _
+	           ";Persist Security Info=False"
+End Function
+
+' This will make sure the database connection is open and ready…
+Sub Application_OnStart()
+    Set conn = Server.CreateObject("ADODB.Connection")
+    conn.open GetConnectionString("Dreamhome.mdb")
+    Set Application("Conn")  = conn
+    Session.TimeOut = 30
+End Sub
+
+' This will close the connection if we shut down the site…
+Sub Application_OnEnd()
+    Application("Conn").Close()
+End Sub
+
+Sub Session_OnStart()
+    'Keep track of the client for this session...
+    Session("ClientID") = Request.Cookies("ClientID")
+    'and keep track of where to return to (from Login etc.)...
+    Session("ReturnTo") = ""
+End Sub
+
+</SCRIPT>
